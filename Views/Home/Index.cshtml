@@ -1,0 +1,208 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm form-group">
+            <label for="orginLocation">Departure airport</label>
+            <input type="text" class="form-control requiredField" id="orginLocation" maxlength="3" placeholder="Type departure airport IATA code...">
+            <small class="errorMessage" hidden style="color:red">*Required field*</small>
+        </div>
+        <div class="col-sm form-group">
+            <label for="destinationLocation">Destination airport</label>
+            <input type="text" class="form-control requiredField" id="destinationLocation" maxlength="3" placeholder="Type destination airport IATA code...">
+            <small class="errorMessage" hidden style="color:red">*Required field*</small>
+        </div>
+        <div class="col-sm form-group">
+            <label for="departureDate">Departure date</label>
+            <div class="input-group ">
+                <input type="text" class="form-control requiredField" id="departureDate" placeholder="--- Select departure date ---">
+            </div>
+            <small class="errorMessage" hidden style="color:red">*Required field*</small>
+        </div>
+        <div class="col-sm form-group">
+            <label for="returnDate">Return date</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="returnDate" placeholder="--- Select departure date ---">
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm form-group">
+            <label for="adults">Adults</label>
+            <div class="input-group">
+                <input type="number" min="1" class="form-control requiredField" id="adults" placeholder="--- Select number of adults ---">
+            </div>
+            <small class="errorMessage" hidden style="color:red">*Required field*</small>
+        </div>
+        <div class="col-sm form-group">
+            <div class="col-sm form-group">
+                <label for="children">Children</label>
+                <div class="input-group">
+                    <input type="number" min="0" class="form-control" id="children" placeholder="--- Select number of children ---">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm form-group">
+            <div class="col-sm form-group">
+                <label for="infants">Infants</label>
+                <div class="input-group">
+                    <input type="number" min="0" class="form-control" id="infants" placeholder="--- Select number of infants ---">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm form-group">
+            <div class="col-sm form-group">
+                <label for="currency">Currency</label>
+                <select class="form-control" id="currency">
+                    <option></option>
+                    <option>USD</option>
+                    <option>EUR</option>
+                    <option>HRK</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <p></p>
+    <div class="row">
+        <button type="button" class="btn btn-primary btn-lg btn-block " id="search">Search</button>
+    </div>
+    <div class="col-md-12" id="flightsTable"></div>
+</div>
+@section Scripts{
+
+    <script type="text/javascript">
+        function FlightsData(filter) {
+
+            $("#flightsTable").append(
+
+                "<div id='spiner' class='d-flex justify-content-center mt-3'><span class='spinner-border' role='status' aria-hidden ='true'></span><span class='sr-only'>Getting data...</span></div>"
+
+            );
+
+            $.ajax({
+                url: '@Url.Action("GetFlights", "Home")',
+                type: 'POST',
+                data: { "filter": filter }
+            }).done(function (partialView) {
+
+                $("#flightsTable").remove("#spiner");
+                $('#flightsTable').html(partialView);
+
+            });
+
+
+
+        }
+
+
+        function buildQueryString(originLocationCode, destinationLocationCode, departureDate, returnDate, adults, children, infants, currency) {
+
+            return "originLocationCode=" + originLocationCode +
+                "&" + "destinationLocationCode=" + destinationLocationCode +
+                "&" + "departureDate=" + departureDate +
+                "&" + "returnDate=" + returnDate +
+                "&" + "adults=" + adults +
+                "&" + "children=" + children +
+                "&" + "infants=" + infants +
+                "&" + "currencyCode=" + currency
+
+        }
+
+        function ValidateForm() {
+
+            var counter = 0;
+
+            $(".requiredField").each(function () {
+
+
+                var val = $(this).val();
+
+                if (val == null || val == "" || val == undefined) {
+
+                    $(this).parent().parent().find(".errorMessage").prop("hidden", false)
+                    counter = counter + 1;
+
+                } else {
+
+                    $(this).parent().parent().find(".errorMessage").prop("hidden", true)
+                }
+
+
+            })
+
+            return counter;
+        }
+
+        $(document).ready(function () {
+
+            $('#orginLocation').tooltip({ 'trigger': 'focus', 'title': 'Max length is 3 characters' });
+            $('#destinationLocation').tooltip({ 'trigger': 'focus', 'title': 'Max length is 3 characters' });
+
+            $("#currency").select2({
+                placeholder: '--- Select an currency ---',
+                allowClear:true
+            });
+
+            $("#departureDate").datepicker({
+                format: "yyyy-mm-dd",
+                autoclose: true
+            });
+
+            $("#returnDate").datepicker({
+                format: "yyyy-mm-dd",
+                autoclose: true
+            });
+
+            $("#search").click(function () {
+
+                $("#flightsTable").remove(".d-flex")
+
+                var validate = ValidateForm();
+
+                if (validate > 0) {
+
+                    return;
+
+                } else {
+
+
+                    var orginLocation = $("#orginLocation").val();
+                    var destinationLocation = $("#destinationLocation").val();
+                    var departureDate = $("#departureDate").val();
+                    var returnDate = $("#returnDate").val()
+                    var adults = $("#adults").val();
+                    var children = $("#children").val();
+                    var infants = $("#infants").val();
+                    var currency = $("#currency").val();
+
+
+                    var queryString = buildQueryString(
+                        orginLocation,
+                        destinationLocation,
+                        departureDate,
+                        returnDate,
+                        adults,
+                        children,
+                        infants,
+                        currency);
+
+
+
+                    console.log(queryString);
+
+
+                    FlightsData(queryString);
+                }
+
+
+
+
+            })
+
+        })
+    </script>
+}

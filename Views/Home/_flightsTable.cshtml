@@ -1,0 +1,71 @@
+﻿@model IEnumerable<FlightSearchResult>
+@{
+    Layout = null;
+}
+@if (Model.Any())
+{
+    <table class="table table-striped" id="flightsList">
+        <thead>
+            <tr>
+                <th>
+                    Departure
+                </th>
+                <th>
+                    Departure date
+                </th>
+                <th>
+                   Destination
+                </th>
+               
+                <th>
+                    Arival date/Return date
+                </th>
+                <th>
+                    Number of passangers
+                </th>
+                <th>
+                   Number of transfers
+                </th>
+                <th>
+                   Currency
+                </th>
+                <th>
+                   Total price
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                   <td>@item.DepartureAirport</td>
+                   <td>@item.DepartureDate</td>
+                   <td>@item.ArivalAirport</td>
+                   <td>@item.ArivalDate</td>
+                   <td>@item.NumberOfPassengers</td>
+                   <td>@item.NumberOfTransfers</td>
+                   <td>@item.Currency</td>
+                   <td>@item.TotalPrice</td>
+                   <td></td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+else
+{
+
+
+    <div class="d-flex justify-content-center mt-3">
+
+        <div class="alert alert-info text-center">
+            No available records for given conditions....
+        </div>
+
+
+    </div>
+}
